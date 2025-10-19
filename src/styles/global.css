@@ -1,1 +1,68 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    header {
+        @apply bg-gradient-to-r from-blue-500 to-purple-600 mb-8 shadow-[0_2px_12px_#805ad522] rounded-b-[24px] relative z-[2] p-0;
+    }
+
+    .nav-content {
+        @apply max-w-[1100px] mx-auto flex items-center justify-between px-8 py-[0.7rem];
+    }
+
+    .brand {
+        @apply text-white text-[1.5rem] font-bold tracking-[2px];
+        text-shadow: 0 2px 8px #4299e155;
+    }
+
+    nav ul {
+        @apply flex gap-10 list-none m-0 p-0;
+    }
+
+    nav a {
+        @apply text-white no-underline font-medium text-[1.1rem] px-[0.8rem] py-[0.3rem] rounded transition duration-200;
+    }
+
+    nav a:hover,
+    nav a.active {
+        @apply bg-white/20 text-pink-300;
+    }
+
+    @media (max-width: 700px) {
+        .nav-content {
+            @apply flex-col items-stretch px-4 py-[0.7rem];
+        }
+
+        nav ul {
+            @apply flex-col gap-4 items-end;
+        }
+    }
+}
+
+@layer base {
+    body {
+        @apply bg-gray-100 text-gray-800 font-sans;
+    }
+
+    a {
+        @apply text-blue-600 hover:text-blue-800;
+    }
+
+    h1 {
+        @apply text-4xl font-bold text-gray-900 mb-6 leading-tight tracking-tight;
+    }
+
+    h2 {
+        @apply text-3xl font-semibold text-gray-800 mb-5 leading-snug tracking-tight;
+    }
+
+    h3 {
+        @apply text-2xl font-medium text-gray-700 mb-4 leading-snug tracking-normal;
+    }
+
+    h4 {
+        @apply text-xl font-medium text-gray-600 mb-3 leading-snug tracking-normal;
+    }
+}

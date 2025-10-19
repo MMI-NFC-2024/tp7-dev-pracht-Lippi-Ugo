@@ -1,0 +1,16 @@
+---
+const { current = "/" } = Astro.props;
+---
+
+<header>
+  <div class="nav-content">
+    <nav>
+      <ul>
+        <li><a href="/" class={current === "/" ? "active" : ""}>Accueil</a></li>
+        <li><a href="/leaflet" class={current === "/leaflet" ? "active" : ""}>Leaflet</a></li>
+        <li><a href="/geoJsonclient" class={current === "/geoJsonclient" ? "active" : ""}>GeoJSON Client</a></li>
+        <li><a href="/geoJson" class={current === "/geoJson" ? "active" : ""}>GeoJSON</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>

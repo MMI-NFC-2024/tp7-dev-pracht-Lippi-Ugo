@@ -1,0 +1,28 @@
+---
+import "leaflet/dist/leaflet.css";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+    <div id="carte" style="height: 600px;"></div>
+</Layout>
+
+<script>
+    import listeEtablissements from "../assets/listeEtablissements.json";
+    // Import de la bibliothèque Leaflet pour créer la carte interactive
+    import L from "leaflet";
+    // Dans l'élément d'ID "carte" : création de la carte centrée sur la France (lat: 46.6033, lon: 1.883) avec un zoom niveau 6
+    const carte = L.map("carte").setView([46.6033, 1.883], 6);
+
+    // Ajout de la couche de tuiles OpenStreetMap
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(carte);
+
+    listeEtablissements.forEach(e=>{
+        let marker = L.marker([e.lat, e.lon]).addTo(carte);
+        marker.bindPopup(`<b>${e.name}</b>`);
+    });
+
+</script>
