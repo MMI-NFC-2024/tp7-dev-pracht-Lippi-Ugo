@@ -1,0 +1,164 @@
+---
+import Layout from "../layouts/Layout.astro";
+import departements from "../assets/departements.geojson.json";
+import populationMain from "../assets/detail_population.json";
+
+// Génération des listes pour les sélecteurs
+const listePeriode = [...new Set(populationMain?.map((d) => d.Période))].sort(
+    (a, b) => b - a,
+);
+
+const listeSexe = [...new Set(populationMain?.map((d) => d.Sexe))];
+
+const listeAge = [...new Set(populationMain?.map((d) => d["Âge"]))];
+---
+
+<Layout>
+    <section>
+        <!-- Filtres -->
+        <div class="flex flex-wrap gap-4 justify-center items-center mb-6">
+            <label class="flex items-center gap-2">
+                <span class="font-medium">Année :</span>
+                <select
+                    id="periode"
+                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                    {
+                        listePeriode.map((p, i) => (
+                            <option value={p} selected={i === 0}>
+                                {p}
+                            </option>
+                        ))
+                    }
+                </select>
+            </label>
+
+            <label class="flex items-center gap-2">
+                <span class="font-medium">Sexe :</span>
+                <select
+                    id="sexe"
+                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                    {
+                        listeSexe.map((s) => (
+                            <option value={s} selected={s === "Total"}>
+                                {s}
+                            </option>
+                        ))
+                    }
+                </select>
+            </label>
+
+            <label class="flex items-center gap-2">
+                <span class="font-medium">Âge :</span>
+                <select
+                    id="age"
+                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                    {
+                        listeAge.map((a) => (
+                            <option value={a} selected={a === "Total"}>
+                                {a}
+                            </option>
+                        ))
+                    }
+                </select>
+            </label>
+        </div>
+
+        <!-- Conteneur de la carte -->
+        <div class="rounded-3xl border border-gray-200 p-6 shadow-lg bg-white">
+            <div
+                id="carte-container"
+                class="flex justify-center min-h-[620px] items-center"
+            >
+                <div class="text-gray-500">Chargement de la carte...</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        import * as Plot from "@observablehq/plot";
+        import departements from "../assets/departements.geojson.json";
+        import populationMain from "../assets/detail_population.json";
+
+        const elmYear = document.getElementById("periode") as HTMLSelectElement;
+        const elmSex = document.getElementById("sexe") as HTMLSelectElement;
+        const elmAge = document.getElementById("age") as HTMLSelectElement;
+
+        let selectedYear = Number(elmYear.value);
+        let selectedSex = elmSex.value;
+        let selectedAge = elmAge.value;
+
+        function updateMap() {
+            const optionPlot = {
+                projection: {
+                    type: "mercator" as const,
+                    domain: departements,
+                },
+                color: {
+                    type: "quantile" as const,
+                    n: 8,
+                    scheme: "Greens" as const,
+                    label: "Population en centaine de milliers",
+                    legend: true,
+                    transform: (d: number) => Math.round(d / 100000),
+                },
+                marks: [
+                    Plot.geo(departements, {
+                        fill: (d: any) => {
+                            const deptName = d.properties.nom;
+                            const popData = populationMain.find(
+                                (p) =>
+                                    p.Géographie === deptName &&
+                                    p.Période === selectedYear &&
+                                    p.Sexe === selectedSex &&
+                                    p["Âge"] === selectedAge,
+                            );
+                            return popData?.Valeur || 0;
+                        },
+                        stroke: "#999",
+                        strokeWidth: 0.5,
+                        title: (d: any) => {
+                            const deptName = d.properties.nom;
+                            const popData = populationMain.find(
+                                (p) =>
+                                    p.Géographie === deptName &&
+                                    p.Période === selectedYear &&
+                                    p.Sexe === selectedSex &&
+                                    p["Âge"] === selectedAge,
+                            );
+                            return `${deptName}\n${popData?.Valeur?.toLocaleString("fr-FR") || "N/A"} habitants`;
+                        },
+                        tip: true,
+                    }),
+                ],
+            };
+
+            const container = document.getElementById("carte-container");
+            if (container) {
+                container.innerHTML = "";
+                container.appendChild(Plot.plot(optionPlot));
+            }
+        }
+
+        // Écouteurs d'événements
+        elmYear.addEventListener("change", () => {
+            selectedYear = Number(elmYear.value);
+            updateMap();
+        });
+
+        elmSex.addEventListener("change", () => {
+            selectedSex = elmSex.value;
+            updateMap();
+        });
+
+        elmAge.addEventListener("change", () => {
+            selectedAge = elmAge.value;
+            updateMap();
+        });
+
+        // Affichage initial
+        updateMap();
+    </script>
+</Layout>
